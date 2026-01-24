@@ -158,6 +158,12 @@
                 this.classList.remove('active');
             }
         };
+        window.onpopstate = function(event) {
+            const params = new URLSearchParams(window.location.search);
+            if (!params.get('err') && !params.get('code')) {
+                window.location.reload(); 
+            }
+        };
         window.addEventListener('online', () => {
             document.getElementById('errorDesc').innerText = '网络已恢复，正在自动刷新...';
             setTimeout(() => location.reload(), 1000);
