@@ -6,6 +6,7 @@
 // @author       Aloazny && Gemini
 // @run-at       document-start
 // @match        *://*/*
+// @license       MIT
 // @grant        none
 // ==/UserScript==
 
