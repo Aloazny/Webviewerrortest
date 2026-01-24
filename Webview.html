@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>WebView 错误模拟测试</title>
+    <style>
+        :root { --p: #0078FF; --bg: #F2F2F7; }
+        body { margin: 0; padding: 20px; background: var(--bg); font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; }
+        h2 { font-size: 20px; margin-top: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 400px; margin-top: 20px; }
+        .card { background: #fff; padding: 15px 10px; border-radius: 24px; text-align: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #eee; transition: transform 0.2s; }
+        .card:active { transform: scale(0.95); }
+        .card span { font-size: 10px; color: #888; display: block; margin-top: 4px; word-break: break-all; }
+        input { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #ddd; margin-top: 20px; box-sizing: border-box; outline: none; }
+        .btn { background: var(--p); color: #fff; padding: 15px 30px; border-radius: 15px; margin-top: 10px; font-weight: bold; width: 100%; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>WebView 错误模拟测试</h2>
+    
+    <div class="grid">
+        <div class="card" onclick="trigger('ERR_CONNECTION_REFUSED')">🚫<br><span>CONNECTION_REFUSED</span></div>
+        <div class="card" onclick="trigger('ERR_CONNECTION_TIMED_OUT')">⏳<br><span>CONNECTION_TIMED_OUT</span></div>
+        <div class="card" onclick="trigger('ERR_INTERNET_DISCONNECTED')">✈️<br><span>INTERNET_DISCONNECTED</span></div>
+        <div class="card" onclick="trigger('ERR_CONNECTION_CLOSED')">🔌<br><span>CONNECTION_CLOSED</span></div>
+        <div class="card" onclick="trigger('ERR_CONNECTION_RESET')">🔄<br><span>CONNECTION_RESET</span></div>
+        <div class="card" onclick="trigger('ERR_CONNECTION_ABORTED')">🛑<br><span>CONNECTION_ABORTED</span></div>
+        
+        <div class="card" onclick="trigger('ERR_NAME_NOT_RESOLVED')">🔍<br><span>NAME_NOT_RESOLVED</span></div>
+        <div class="card" onclick="trigger('DNS_PROBE_FINISHED_NXDOMAIN')">🌐<br><span>DNS_NXDOMAIN</span></div>
+        <div class="card" onclick="trigger('DNS_PROBE_FINISHED_NO_INTERNET')">📡<br><span>DNS_NO_INTERNET</span></div>
+        <div class="card" onclick="trigger('ERR_DNS_TIMED_OUT')">⏱️<br><span>DNS_TIMED_OUT</span></div>
+        
+        <div class="card" onclick="trigger('ERR_SSL_PROTOCOL_ERROR')">🔒<br><span>SSL_PROTOCOL_ERROR</span></div>
+        <div class="card" onclick="trigger('ERR_CERT_AUTHORITY_INVALID')">📑<br><span>CERT_AUTH_INVALID</span></div>
+        <div class="card" onclick="trigger('ERR_CERT_DATE_INVALID')">📅<br><span>CERT_DATE_INVALID</span></div>
+        <div class="card" onclick="trigger('PR_CONNECT_RESET_ERROR')">⚠️<br><span>PR_CONNECT_RESET</span></div>
+        
+        <div class="card" onclick="trigger('ERR_PROXY_CONNECTION_FAILED')">🛠️<br><span>PROXY_FAILED</span></div>
+        <div class="card" onclick="trigger('ERR_ADDRESS_UNREACHABLE')">📍<br><span>ADDR_UNREACHABLE</span></div>
+        <div class="card" onclick="trigger('ERR_BLOCKED_BY_CLIENT')">🛡️<br><span>BLOCKED_BY_CLIENT</span></div>
+        <div class="card" onclick="trigger('ERR_TOO_MANY_REDIRECTS')">🔁<br><span>TOO_MANY_REDIRECTS</span></div>
+    </div>
+
+    <div style="width: 100%; max-width: 400px;">
+        <input type="text" id="code" placeholder="手动输入其他错误代码测试">
+        <button class="btn" onclick="trigger(document.getElementById('code').value)">触发测试</button>
+    </div>
+
+    <script>
+        function trigger(c) {
+            if(!c) return;
+            document.title = "网页无法打开";
+            document.body.innerHTML = `
+                <div class="neterror">
+                    <div id="main-frame-error">
+                        <div class="error-code">${c}</div>
+                        <p>内核模拟报错文本：${c}</p>
+                    </div>
+                </div>
+            `;
+            window.dispatchEvent(new Event('load'));
+            window.dispatchEvent(new Event('resize'));
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const errCode = params.get('err') || params.get('code');
+            if (errCode) {
+                setTimeout(() => trigger(errCode), 100);
+            }
+        });
+    </script>
+    </script>
+</body>
+</html>
