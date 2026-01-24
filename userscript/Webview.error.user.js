@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WebView 错误美化
 // @namespace    https://viayoo.com/h88v22
-// @version      1.2
+// @version      1.3
 // @description  基于MIUIX设计语言重绘的 WebView 错误页面，并且给出一定程度上的解决方案。
 // @author       Aloazny && Gemini
 // @run-at       document-start
@@ -38,17 +38,18 @@
         const isSearchPage = (function() {
             const searchParams = ["q", "s", "p", "wd", "word", "keyword", "text", "query", "key", "result", "searchWord", "search-result"];
             const searchPaths = ['/search', '/s', '/query', '/google', '/bing', '/baidu'];
-            const hasQueryParam = searchParams.some(p => new RegExp(`[?&]${p}=`, 'i').test(url));
-            const hasSearchPath = searchPaths.some(p => url.includes(p));
-            const hasGeneralSearchPattern = /[?&](q|word|query|wd)=/.test(url);
-            return hasQueryParam || hasSearchPath || hasGeneralSearchPattern;
+            return searchParams.some(p => new RegExp(`[?&]${p}=`, 'i').test(url)) || searchPaths.some(p => url.includes(p)) || /[?&](q|word|query|wd)=/.test(url);
         })();
-        if (isSearchPage && text.length > 500) return false;
         const isInternalError = url.startsWith('chrome-error://') || url.includes('chromewebdata') || window.location.protocol === 'chrome-error:';
-        const hasErrorElement = !!document.querySelector('#main-frame-error, .error-code, .neterror, #main-message');
+        const hasErrorElement = !!document.querySelector('#main-frame-error, .error-code, .neterror, #main-message, [id^="error-information"]');
+        const isExtremelySimpleStructure = document.querySelectorAll('div').length < 12;
+        const isStaticPage = document.querySelectorAll('a').length < 10;
         const hasErrorCode = ERROR_PATTERNS.some(p => p.test(text));
         const isSimplePage = text.length < 800;
-        return isInternalError || (hasErrorElement && isSimplePage) || (hasErrorCode && isSimplePage && !isSearchPage);
+        const isTechnicalSite = /csdn\.net|github\.com|stackoverflow\.com|segmentfault\.com|v2ex\.com/i.test(url);
+        if (isInternalError || (hasErrorElement && isSimplePage && isStaticPage)) return true;
+        if (isTechnicalSite && !isInternalError && !hasErrorElement) return false;
+        return hasErrorCode && isExtremelySimpleStructure && isSimplePage && isStaticPage && !isSearchPage;
     }
 
     function getInfo() {
