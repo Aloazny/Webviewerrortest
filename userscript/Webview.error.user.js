@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         WebView 错误美化
 // @namespace    https://viayoo.com/h88v22
-// @version      1.3
+// @version      1.4
 // @description  基于MIUIX设计语言重绘的 WebView 错误页面，并且给出一定程度上的解决方案。
 // @author       Aloazny && Gemini
 // @run-at       document-start
 // @match        *://*/*
 // @license       MIT
 // @grant        none
+// @icon         data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAA0CAYAAADFeBvrAAAAAXNSR0IArs4c6QAAAARzQklUCAgICHwIZIgAAAUpSURBVGiB1ZrfaxxVFMc/N5Q0fchm89DWnzQpVsjS0sVYfBGSYrSPSWgLKmLTgAXfKvhsEv8B46tCs8GCSiNNX4TUH03AQqVN3VCJ0IitVVPbl0y2D7v15fhwZzI/Mrt7785us/nAsjN35t5zv5wzZ+7cexUWiMggMAR0AWkga1PfgjzgAHeBWaXUpbq1LCJdIjIlImuyday5fUgnFTO2xUKirInIWKU+qzJC0sAVGhdSSckDR5VSTvTCJkEikkWLSebexuOgReWDhSFBrmfu0PxiPBygO+ipFu8gEGbbRQzovl4JFrQEjs/SvM9MJbIiMu6dKNCpGfiF7eWdIBuht8MtGKeOYpwiXPoN7q7p8/yq/s8+o/+7OmGwB9K76mWRNDAJjHgeWqMOgqZvQm4R5v+IXBD3P5JT+/fDSC+ceimpZQAcpVSnEpEh4GKSlqZvwvj3vkdCCL6Q4HGArk4YH6iLsGElIjngVC21nSIMn4/xiEecgDKiQHvs4juJQvFTJSLzQJ9tzfwqnJ6B/P1w+bMpOHEIjh2AwmN488vw9a/egtROmFuBmVvwTyF8Pfs0TJ3wnzdLFnYAHba18qtw9HNwSn5ZeyuMDWgxHtfuxdfP7NW/D16Fc9fhk5/g0X9u2/d121feq0lURwuW7x6nqD0TFNOzG66+HxZjyugRXbdnd8BGybVRtG4u21L9njDD58NhdvwgfP02pNqsjW+QatNtHD/ol+Xva1G2WAmKpuSe3TD2WjIxHqk23VbQU7PL2qYNVoImfvCP21uTeyaK56n21nibJhgLyi2G3zNjA/UV45Fq08nC4+6anZesBHl4qblRjB7RNuJsV8NIkFOEhTv+eSPFxNlYuGOe8YwEzS6Hz48dMO1W7URtRPtQDiNB0TFaZq9Z40mI2ogdJ8Zg/R565XnbGrUTTOGmGAnyvmeeNMEsatoHs6RQqn5Ps2AkqH9/o7sRz6PH/rHpQNX6Gfr5L/N7M3vMysqx/ND8Xg8jQV2dEUMPzBpPtcFor38+2ms+uojaiPahHDuq3wJDGTgdOJ9bMU/dHw3AWXcoYzNUmlvZ3AcTjDyU3gV93f75N7+adgsu34YzF+HDb/WxKUEbfd3mn+XGz9BIIHT+XtdfmtXwxFy7B5dX9LGJqHPXtY0429WwErQvMNE1eRUKVdL5uRuby2ZuVa5TKOm2PfalGyQI9FTThmF3AqSaKBsKJbfNQLoO2jTBStBIb/hZWn4IH/9YXtToy5vLyo3UCyXdVjBVD/bYeQdAiYhUv83HKUL/Z7D0r1+W2eNOT8Vkscu3/TA7cQjeeHHzPZ5ngmIOPwXzZ+zn6JSI5IHDNpXyq1rUeiA0Ujv1l+bpGK9UYuqGnsYKhlnHTi2mhmmspUQTjSMXwp4CeK4DTh6C118o/65afgDf/Q4XboWzGWjPzL5r/iKNsJB4Knjoi/DXbJTMHj8UC6XKw5nBHsidTD4VnHiyPreoJ+v/3LSEa8a+tM5mtgkghmFvOcWhhinhKLlF/avksSB93VpEHYQArCul0p6gmsMuDqeo5wAqLXgNZeq64AUwrZTaWPBKo7ehJPbSFrEOdCmlnBYAd1l8cmv7lIhJb2k/uk/B+p3UBCwppTZWUOI2Xmyn0NsINa8gNJZzL/S7NzY760B/dL9Ppc1L8zRv+C0RIwbKjLaVUo4blxM0l7fWgQmlVDZOjBEikhaRnIg4T2pTXAyO24eqeynKLLCXFTdEeItmo0JyCb3dJQ/MK6VmTSv+D9sXVkySmRwbAAAAAElFTkSuQmCC
 // ==/UserScript==
 
 (function() {
