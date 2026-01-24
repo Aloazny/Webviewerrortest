@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WebView 错误美化
 // @namespace    https://viayoo.com/h88v22
-// @version      1.0
+// @version      1.1
 // @description  基于MIUIX设计语言重绘的 WebView 错误页面，并且给出一定程度上的解决方案。
 // @author       Aloazny && Gemini
 // @run-at       document-start
@@ -33,11 +33,22 @@
 
     function detect() {
         if (!document.body || isApplied) return false;
+        const url = window.location.href;
         const text = document.body.textContent;
-        const hasCode = ERROR_PATTERNS.some(p => p.test(text));
-        const isChromeErr = window.location.href.includes('chromewebdata') || window.location.protocol === 'chrome-error:' || window.location.href.includes('chrome-error://');
-        const hasElement = !!document.querySelector('#main-frame-error, .error-code, .neterror');
-        return hasCode || isChromeErr || (hasElement && text.length < 1500);
+        const isSearchPage = (function() {
+            const searchParams = ["q", "s", "p", "wd", "word", "keyword", "text", "query", "key", "result", "searchWord", "search-result"];
+            const searchPaths = ['/search', '/s', '/query', '/google', '/bing', '/baidu'];
+            const hasQueryParam = searchParams.some(p => new RegExp(`[?&]${p}=`, 'i').test(url));
+            const hasSearchPath = searchPaths.some(p => url.includes(p));
+            const hasGeneralSearchPattern = /[?&](q|word|query|wd)=/.test(url);
+            return hasQueryParam || hasSearchPath || hasGeneralSearchPattern;
+        })();
+        if (isSearchPage && text.length > 1000) return false;
+        const isInternalError = url.startsWith('chrome-error://') || url.includes('chromewebdata') || window.location.protocol === 'chrome-error:';
+        const hasErrorElement = !!document.querySelector('#main-frame-error, .error-code, .neterror, #main-message');
+        const hasErrorCode = ERROR_PATTERNS.some(p => p.test(text));
+        const isSimplePage = text.length < 1500;
+        return isInternalError || (hasErrorElement && isSimplePage) || (hasErrorCode && isSimplePage && !isSearchPage);
     }
 
     function getInfo() {
