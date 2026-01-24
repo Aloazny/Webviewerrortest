@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,9 +17,10 @@
         .btn { background: var(--p); color: #fff; padding: 15px 30px; border-radius: 15px; margin-top: 10px; font-weight: bold; width: 100%; border: none; cursor: pointer; }
     </style>
 </head>
+
 <body>
     <h2>WebView 错误模拟测试</h2>
-    
+
     <div class="grid">
         <div class="card" onclick="trigger('ERR_CONNECTION_REFUSED')">🚫<br><span>CONNECTION_REFUSED</span></div>
         <div class="card" onclick="trigger('ERR_CONNECTION_TIMED_OUT')">⏳<br><span>CONNECTION_TIMED_OUT</span></div>
@@ -26,17 +28,17 @@
         <div class="card" onclick="trigger('ERR_CONNECTION_CLOSED')">🔌<br><span>CONNECTION_CLOSED</span></div>
         <div class="card" onclick="trigger('ERR_CONNECTION_RESET')">🔄<br><span>CONNECTION_RESET</span></div>
         <div class="card" onclick="trigger('ERR_CONNECTION_ABORTED')">🛑<br><span>CONNECTION_ABORTED</span></div>
-        
+
         <div class="card" onclick="trigger('ERR_NAME_NOT_RESOLVED')">🔍<br><span>NAME_NOT_RESOLVED</span></div>
         <div class="card" onclick="trigger('DNS_PROBE_FINISHED_NXDOMAIN')">🌐<br><span>DNS_NXDOMAIN</span></div>
         <div class="card" onclick="trigger('DNS_PROBE_FINISHED_NO_INTERNET')">📡<br><span>DNS_NO_INTERNET</span></div>
         <div class="card" onclick="trigger('ERR_DNS_TIMED_OUT')">⏱️<br><span>DNS_TIMED_OUT</span></div>
-        
+
         <div class="card" onclick="trigger('ERR_SSL_PROTOCOL_ERROR')">🔒<br><span>SSL_PROTOCOL_ERROR</span></div>
         <div class="card" onclick="trigger('ERR_CERT_AUTHORITY_INVALID')">📑<br><span>CERT_AUTH_INVALID</span></div>
         <div class="card" onclick="trigger('ERR_CERT_DATE_INVALID')">📅<br><span>CERT_DATE_INVALID</span></div>
         <div class="card" onclick="trigger('PR_CONNECT_RESET_ERROR')">⚠️<br><span>PR_CONNECT_RESET</span></div>
-        
+
         <div class="card" onclick="trigger('ERR_PROXY_CONNECTION_FAILED')">🛠️<br><span>PROXY_FAILED</span></div>
         <div class="card" onclick="trigger('ERR_ADDRESS_UNREACHABLE')">📍<br><span>ADDR_UNREACHABLE</span></div>
         <div class="card" onclick="trigger('ERR_BLOCKED_BY_CLIENT')">🛡️<br><span>BLOCKED_BY_CLIENT</span></div>
@@ -51,6 +53,8 @@
     <script>
         function trigger(c) {
             if(!c) return;
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?err=' + c;
+            window.history.pushState({ path: newUrl }, '', newUrl);
             document.title = "网页无法打开";
             document.body.innerHTML = `
                 <div class="neterror">
@@ -67,10 +71,28 @@
             const params = new URLSearchParams(window.location.search);
             const errCode = params.get('err') || params.get('code');
             if (errCode) {
-                setTimeout(() => trigger(errCode), 100);
+                triggerContentOnly(errCode);
+            }
+        });
+        function triggerContentOnly(c) {
+            document.title = "网页无法打开";
+            document.body.innerHTML = `
+                <div class="neterror">
+                    <div id="main-frame-error">
+                        <div class="error-code">${c}</div>
+                        <p>内核模拟报错文本：${c}</p>
+                    </div>
+                </div>
+            `;
+            window.dispatchEvent(new Event('load'));
+        }
+        window.addEventListener('popstate', () => {
+            const params = new URLSearchParams(window.location.search);
+            if (!params.get('err')) {
+                location.reload();
             }
         });
     </script>
-    </script>
 </body>
+
 </html>
