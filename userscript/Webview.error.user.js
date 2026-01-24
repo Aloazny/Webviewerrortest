@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WebView 错误美化
 // @namespace    https://viayoo.com/h88v22
-// @version      1.5
+// @version      1.6
 // @description  基于MIUIX设计语言重绘的 WebView 错误页面，并且给出一定程度上的解决方案。
 // @author       Aloazny && Gemini
 // @run-at       document-start
@@ -188,11 +188,25 @@
 
         shadow.getElementById('cp').onclick = function() {
             const textToCopy = `错误类型: ${data.type}\n错误代码: ${data.code}\n请求网址: ${data.url}\n设备信息: ${data.ua}\n生成时间: ${new Date().toLocaleString()}`;
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                const oldText = this.innerText;
-                this.innerText = '✅';
-                setTimeout(() => this.innerText = oldText, 1500);
-            });
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-9999px";
+            textArea.style.top = "0";
+            shadow.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    const oldText = this.innerText;
+                    this.innerText = '✅';
+                    setTimeout(() => this.innerText = oldText, 1500);
+                }
+            } catch (err) {
+                console.error('复制失败:', err);
+            }
+            shadow.removeChild(textArea);
         };
 
         const clearAndAppend = () => {
