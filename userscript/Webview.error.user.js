@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WebView 错误美化
 // @namespace    https://viayoo.com/h88v22
-// @version      1.1
+// @version      1.2
 // @description  基于MIUIX设计语言重绘的 WebView 错误页面，并且给出一定程度上的解决方案。
 // @author       Aloazny && Gemini
 // @run-at       document-start
@@ -43,11 +43,11 @@
             const hasGeneralSearchPattern = /[?&](q|word|query|wd)=/.test(url);
             return hasQueryParam || hasSearchPath || hasGeneralSearchPattern;
         })();
-        if (isSearchPage && text.length > 1000) return false;
+        if (isSearchPage && text.length > 500) return false;
         const isInternalError = url.startsWith('chrome-error://') || url.includes('chromewebdata') || window.location.protocol === 'chrome-error:';
         const hasErrorElement = !!document.querySelector('#main-frame-error, .error-code, .neterror, #main-message');
         const hasErrorCode = ERROR_PATTERNS.some(p => p.test(text));
-        const isSimplePage = text.length < 1500;
+        const isSimplePage = text.length < 800;
         return isInternalError || (hasErrorElement && isSimplePage) || (hasErrorCode && isSimplePage && !isSearchPage);
     }
 
@@ -82,8 +82,13 @@
         } else if (/ACCESS_DENIED|BLOCKED/.test(code)) {
             type = '访问受阻'; desc = '请求被客户端或服务器拦截';
             help = '<li>检查广告过滤插件设置</li><li>该页面可能需要特定的访问权限</li><li>尝试清除 Cookie 后重新登录</li>';
+        } else if (/_TOO_MANY_|REDIRECTS/.test(code)) {
+            type = '请求过多'; desc = '目标服务器拒绝了连接请求';
+            help = '<li>对网页发送请求过多可能会导致此问题</li><li>请过段时间访问再访问网址</li><li>或者尝试更换 IP 访问</li>';
+        } else if (/ADDRESS_UNREACHABLE/.test(code)) {
+            type = '地址无法访问'; desc = '无法找到通往目标服务器的路径';
+            help = '<li>检查输入的网址是否包含错误的 IP 或域名</li><li>尝试切换网络（如由 Wi-Fi 切换至移动数据）</li><li>如果你正在使用 VPN，请尝试更换节点或关闭它</li><li>检查局域网网关及子网掩码配置是否正确</li>';
         }
-
         return { code, type, desc, help };
     }
 
