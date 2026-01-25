@@ -6,9 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>WebView 错误模拟测试</title>
     <style>
-        :root { --p: #0078FF; --bg: #F2F2F7; }
-        body { margin: 0; padding: 20px; background: var(--bg); font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; }
-        h2 { font-size: 20px; margin-top: 20px; }
+        :root { --p: #0078FF; --bg: #F2F2F7; --text: #333; --light-text: #666; }
+        body { margin: 0; padding: 20px; background: var(--bg); font-family: 'Roboto', 'PingFang SC', system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; color: var(--text); }
+        h2 { font-size: 20px; margin: 20px 0 10px 0; font-weight: 500; }
+        .neterror { background: #fff; position: fixed; top: 0; left: 0; width: 100%; height: 100%; padding: 20px; box-sizing: border-box; display: block; z-index: 100; text-align: left; }
+        .neterror img { margin-bottom: 5px; }
+        .neterror h2 { margin: 5px 0 10px 0; padding: 0; color: #000; font-size: 21px; text-align: left; }
+        .neterror p { margin: 10px 0; font-size: 14px; line-height: 1.5; color: var(--light-text); }
+        .neterror strong { word-break: break-all; color: #333; }
+        .neterror .error-code { margin-top: 15px; font-size: 13px; color: #666; text-transform: lowercase; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 400px; margin-top: 20px; }
         .card { background: #fff; padding: 15px 10px; border-radius: 24px; text-align: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #eee; transition: transform 0.2s; }
         .card:active { transform: scale(0.95); }
@@ -28,17 +34,14 @@
         <div class="card" onclick="trigger('ERR_CONNECTION_CLOSED')">🔌<br><span>CONNECTION_CLOSED</span></div>
         <div class="card" onclick="trigger('ERR_CONNECTION_RESET')">🔄<br><span>CONNECTION_RESET</span></div>
         <div class="card" onclick="trigger('ERR_CONNECTION_ABORTED')">🛑<br><span>CONNECTION_ABORTED</span></div>
-
         <div class="card" onclick="trigger('ERR_NAME_NOT_RESOLVED')">🔍<br><span>NAME_NOT_RESOLVED</span></div>
         <div class="card" onclick="trigger('DNS_PROBE_FINISHED_NXDOMAIN')">🌐<br><span>DNS_NXDOMAIN</span></div>
         <div class="card" onclick="trigger('DNS_PROBE_FINISHED_NO_INTERNET')">📡<br><span>DNS_NO_INTERNET</span></div>
         <div class="card" onclick="trigger('ERR_DNS_TIMED_OUT')">⏱️<br><span>DNS_TIMED_OUT</span></div>
-
         <div class="card" onclick="trigger('ERR_SSL_PROTOCOL_ERROR')">🔒<br><span>SSL_PROTOCOL_ERROR</span></div>
         <div class="card" onclick="trigger('ERR_CERT_AUTHORITY_INVALID')">📑<br><span>CERT_AUTH_INVALID</span></div>
         <div class="card" onclick="trigger('ERR_CERT_DATE_INVALID')">📅<br><span>CERT_DATE_INVALID</span></div>
         <div class="card" onclick="trigger('PR_CONNECT_RESET_ERROR')">⚠️<br><span>PR_CONNECT_RESET</span></div>
-
         <div class="card" onclick="trigger('ERR_PROXY_CONNECTION_FAILED')">🛠️<br><span>PROXY_FAILED</span></div>
         <div class="card" onclick="trigger('ERR_ADDRESS_UNREACHABLE')">📍<br><span>ADDR_UNREACHABLE</span></div>
         <div class="card" onclick="trigger('ERR_BLOCKED_BY_CLIENT')">🛡️<br><span>BLOCKED_BY_CLIENT</span></div>
@@ -51,17 +54,21 @@
     </div>
 
     <script>
+        const ROBOT_ICON = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAaCAMAAADCHv/YAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAitQTFRFn8ctpMo4o8o3ocgzo8k3osk1oMcvo8k2osk0pco6+fzy7vXa9/rs8/jl/P75/v78/v/9osk2ocgy+Pvwo8o4/v79pss68ffho8k1/f77s9JY2umtqMxB/f76stJWvdhtrM5J6vPRpss7oskzpMo3nscs9fnoq85I7/bcp8w+0eOY2+qvstJV+vz08Pbd5e/E5O/En8crnsYrrtBNoMcutNNardBMpss80eSaoMgu5e/Focg08fffz+SYpcs6x96EsNFR5fDFxd2AuNVju9do9PjlzOGOoccvyuCL0OSYpco5ocky7/Xbwtt4zuKT8vfhr9BO8vjjpss+qc5F1eah4O273+y5qs1E0OOWt9Vks9NYqs1Crc9KxNx8oMgx3OqxocgwttRewdt36vPSu9dqqcxB9PnoncYos9JXv9lxqs1FqMxAuNZjsNFTn8cvosgz2eiq5vDI5/DJ/P35ttVg2Omp7vXZ7fTXnscrnsYqstJYuNRg+fvytNRc6PHL///94O26tdNb9Pjnn8csz+OWqs5Fosgx6PLNq85F1eajrM5I///+rc9Lt9Vgt9Rf/P344e29nMUo3uy1ttRgrs9MpMo6wdt2+vzzy+GN+Pvu+/32ockzqs1D3Ouy4e69rM9J8/jk8ffgzeKRq81Fqc1E1OWfxdx+nsct2+mw2emr9vrsxNx9yd+I0uafoMgw5O/CsdJW7PTT6/PS3Oqyn8cuocgxqs5HpMo5////jSIuSwAAAd9JREFUeNqE0vdb00AYB/BLmrShLaWLvTfIHrIEAREBwQkq0w0OkL1kCAoqICpbFPdEUUGakPfP44IWoU0v31/ufZ57P7m8uaAv1BZO5q8H0ZVbhAQUJdQESEVYJzqARByU5+5Gi4Sobr4YUEnF5aR/5Nu4EvHTbuyQkmTUc1cqUtuLFUhQYMtvvNIRMUifgRiGf6hPVEfyhMxOw9t0FWO6cQIQ6Aa9vO7/AYvtko2Q1RkjxIW4xX5NwAQCP+QaAF5d2yQltM8TQBvT9AQk8je6NrVASOrpLnvnLolq1JDGF56BE3lesEIi/E9nAkd4ElGfkyE5AoW3FsMjzfta0c77siF6GeLx9CLe4674X+d2ASWWVt2WTP9HkCEwmo6PEdbB+yxjJ+ZhI5zEfxT3+owsgYYUTLLAprHaCRudaAgWRGt2HMgTbTcvUhF3jjP/R/H5nBYuUugYuCAQFYRE6pB17/gmTqRT1owuCfwIHmMdP2/5o2pPcE3Ad/ICuxdRHB2ftL/FkQB01NWrW1UmhqY1rBn5TMUPgRJZKvOdu1o7EXs4rPndfP49w1F/JZK8YJGu9eUpXYW7dgSXhWkWMvHw++740FvLZPLmoKOA3k/eRPI41InA+fcK4ytnW4ABANzcGZFdd/x+AAAAAElFTkSuQmCC";
         function trigger(c) {
             if(!c) return;
             const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?err=' + c;
             window.history.pushState({ path: newUrl }, '', newUrl);
+            triggerContentOnly(c);
+        }
+        function triggerContentOnly(c) {
             document.title = "网页无法打开";
             document.body.innerHTML = `
                 <div class="neterror">
-                    <div id="main-frame-error">
-                        <div class="error-code">${c}</div>
-                        <p>内核模拟报错文本：${c}</p>
-                    </div>
+                    <img width="50" height="26" src="${ROBOT_ICON}">
+                    <h2>网页无法打开</h2>
+                    <p>位于 <strong>${window.location.href}</strong> 的网页无法加载，因为：</p>
+                    <p class="error-code">net::${c}</p>
                 </div>
             `;
             window.dispatchEvent(new Event('load'));
@@ -74,22 +81,12 @@
                 triggerContentOnly(errCode);
             }
         });
-        function triggerContentOnly(c) {
-            document.title = "网页无法打开";
-            document.body.innerHTML = `
-                <div class="neterror">
-                    <div id="main-frame-error">
-                        <div class="error-code">${c}</div>
-                        <p>内核模拟报错文本：${c}</p>
-                    </div>
-                </div>
-            `;
-            window.dispatchEvent(new Event('load'));
-        }
         window.addEventListener('popstate', () => {
             const params = new URLSearchParams(window.location.search);
             if (!params.get('err')) {
                 location.reload();
+            } else {
+                triggerContentOnly(params.get('err'));
             }
         });
     </script>
