@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WebView 错误美化
 // @namespace    https://viayoo.com/h88v22
-// @version      1.6
+// @version      1.7
 // @description  基于MIUIX设计语言重绘的 WebView 错误页面，并且给出一定程度上的解决方案。
 // @author       Aloazny && Gemini
 // @run-at       document-start
@@ -36,21 +36,13 @@
         if (!document.body || isApplied) return false;
         const url = window.location.href;
         const text = document.body.textContent;
-        const isSearchPage = (function() {
-            const searchParams = ["q", "s", "p", "wd", "word", "keyword", "text", "query", "key", "result", "searchWord", "search-result"];
-            const searchPaths = ['/search', '/s', '/query', '/google', '/bing', '/baidu'];
-            return searchParams.some(p => new RegExp(`[?&]${p}=`, 'i').test(url)) || searchPaths.some(p => url.includes(p)) || /[?&](q|word|query|wd)=/.test(url);
-        })();
         const isInternalError = url.startsWith('chrome-error://') || url.includes('chromewebdata') || window.location.protocol === 'chrome-error:';
-        const hasErrorElement = !!document.querySelector('#main-frame-error, .error-code, .neterror, #main-message, [id^="error-information"]');
-        const isExtremelySimpleStructure = document.querySelectorAll('div').length < 12;
-        const isStaticPage = document.querySelectorAll('a').length < 10;
+        if (isInternalError) return true;
+        const isNativeStructure = document.querySelectorAll('a').length < 3 && document.querySelectorAll('img').length === 1 && document.querySelectorAll('div').length < 12;
+        const hasErrorTitle = document.title === "网页无法打开" || (document.querySelector('h2') && document.querySelector('h2').innerText === "网页无法打开");
         const hasErrorCode = ERROR_PATTERNS.some(p => p.test(text));
-        const isSimplePage = text.length < 800;
-        const isTechnicalSite = /csdn\.net|github\.com|stackoverflow\.com|segmentfault\.com|v2ex\.com/i.test(url);
-        if (isInternalError || (hasErrorElement && isSimplePage && isStaticPage)) return true;
-        if (isTechnicalSite && !isInternalError && !hasErrorElement) return false;
-        return hasErrorCode && isExtremelySimpleStructure && isSimplePage && isStaticPage && !isSearchPage;
+        if (isNativeStructure && hasErrorTitle && hasErrorCode) return true;
+        return false;
     }
 
     function getInfo() {
