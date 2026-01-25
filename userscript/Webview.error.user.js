@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WebView 错误美化
 // @namespace    https://viayoo.com/h88v22
-// @version      1.8
+// @version      1.9
 // @description  基于MIUIX设计语言重绘的 WebView 错误页面，并且给出一定程度上的解决方案。
 // @author       Aloazny && Gemini
 // @run-at       document-start
@@ -27,7 +27,9 @@
         /ERR_UNSAFE_PORT/i, /ERR_UNSAFE_REDIRECT/i, /DNS_PROBE_FINISHED_NO_INTERNET/i,
         /DNS_PROBE_FINISHED_NXDOMAIN/i, /DNS_PROBE_STARTED/i, /PR_CONNECT_RESET_ERROR/i,
         /PR_END_OF_FILE_ERROR/i, /NS_ERROR_NET_TIMEOUT/i, /NS_ERROR_CONNECTION_REFUSED/i,
-        /NS_ERROR_NET_RESET/i, /NS_ERROR_PROXY_CONNECTION_REFUSED/i
+        /NS_ERROR_NET_RESET/i, /NS_ERROR_PROXY_CONNECTION_REFUSED/i, /ERR_FILE_NOT_FOUND/i,
+        /ERR_REQUEST_RANGE_NOT_SATISFIABLE/i, /ERR_INVALID_HTTP_RESPONSE/i, /ERR_SSL_BAD_RECORD_MAC_ALERT/i,
+        /ERR_DISALLOWED_URL_SCHEME/i, /ERR_UNKNOWN_URL_SCHEME/i
     ];
 
     let isApplied = false;
@@ -51,7 +53,7 @@
         const match = text.match(/(ERR_[A-Z_]+|DNS_[A-Z_]+|SSL_[A-Z_]+|CERT_[A-Z_]+|PROXY_[A-Z_]+|NS_ERROR_[A-Z_]+|PR_[A-Z_]+)/i);
         const code = match ? match[0].toUpperCase() : "ERR_FAILED";
         // URL提取参(抄)考(袭)了大萌主的脚本，感谢
-        // https://update.greasyfork.org/scripts/561334/%E4%BC%98%E9%9B%85%E7%9A%84%E9%94%99%E8%AF%AF%E9%A1%B5%E9%9D%A2%E7%BE%8E%E5%8C%96.user.js
+       // https://update.greasyfork.org/scripts/561334/%E4%BC%98%E9%9B%85%E7%9A%84%E9%94%99%E8%AF%AF%E9%A1%B5%E9%9D%A2%E7%BE%8E%E5%8C%96.user.js
         let url = window.location.href;
         const urlPatterns = [
             /位于\s*<strong>([^<]+)<\/strong>/i,
@@ -77,18 +79,18 @@
         } else if (/REFUSED/.test(code)) {
             type = '连接被拒绝'; desc = '目标服务器拒绝了连接请求';
             help = '<li>核对网址拼写是否正确</li><li>该网站可能暂时关闭或维护</li><li>检查本地防火墙拦截记录</li>';
+        } else if (/NAME_NOT_RESOLVED|NXDOMAIN|DNS_/.test(code)) {
+            type = 'DNS 解析失败'; desc = '找不到服务器的 IP 地址';
+            help = '<li>检查网址是否拼写错误</li><li>尝试修改 DNS 为 223.5.5.5 或 8.8.8.8</li><li>清除浏览器 DNS 缓存</li>';
         } else if (/DISCONNECTED|NO_INTERNET/.test(code)) {
             type = '网络已断开'; desc = '当前未连接到互联网';
             help = '<li>检查网线、调制解调器和路由器</li><li>重新连接 Wi-Fi 或移动数据</li><li>检查是否欠费停机</li>';
         } else if (/CLOSED|RESET|ABORTED/.test(code)) {
             type = '连接中断'; desc = '与服务器的连接意外丢失';
             help = '<li>网络环境切换可能导致此问题</li><li>尝试重新加载网页</li><li>检查 VPN 或加速器连接状态</li>';
-        } else if (/NAME_NOT_RESOLVED|NXDOMAIN|DNS_/.test(code)) {
-            type = 'DNS 解析失败'; desc = '找不到服务器的 IP 地址';
-            help = '<li>检查网址是否拼写错误</li><li>尝试修改 DNS 为 223.5.5.5 或 8.8.8.8</li><li>清除浏览器 DNS 缓存</li>';
-        } else if (/SSL_|CERT_|PROTOCOL/.test(code)) {
+        } else if (/SSL_|CERT_|PROTOCOL|INSECURE/.test(code)) {
             type = '安全连接失败'; desc = '网页使用了不安全的证书或协议';
-            help = '<li>检查系统日期和时间是否准确</li><li>该网站证书可能已过期或不可信</li><li>避免在公共网络输入敏感信息</li>';
+            help = '<li>检查系统日期和时间是否准确</li><li>该网站证书可能已过期或不可信</li><li>尝试清除 HSTS 状态或检查加密套件</li>';
         } else if (/PROXY_/.test(code)) {
             type = '代理错误'; desc = '代理服务器连接异常';
             help = '<li>检查系统或浏览器的代理设置</li><li>尝试禁用 VPN 或第三方代理工具</li><li>联系网络管理员获取正确配置</li>';
@@ -96,11 +98,17 @@
             type = '访问受阻'; desc = '请求被客户端或服务器拦截';
             help = '<li>检查广告过滤插件设置</li><li>该页面可能需要特定的访问权限</li><li>尝试清除 Cookie 后重新登录</li>';
         } else if (/_TOO_MANY_|REDIRECTS/.test(code)) {
-            type = '请求过多'; desc = '目标服务器拒绝了连接请求';
-            help = '<li>对网页发送请求过多可能会导致此问题</li><li>请过段时间访问再访问网址</li><li>或者尝试更换 IP 访问</li>';
-        } else if (/ADDRESS_UNREACHABLE/.test(code)) {
-            type = '地址无法访问'; desc = '无法找到通往目标服务器的路径';
-            help = '<li>检查输入的网址是否包含错误的 IP 或域名</li><li>尝试切换网络（如由 Wi-Fi 切换至移动数据）</li><li>如果你正在使用 VPN，请尝试更换节点或关闭它</li><li>检查局域网网关及子网掩码配置是否正确</li>';
+            type = '重定向过多'; desc = '网页导致了过多的重定向循环';
+            help = '<li>尝试清除该网站的 Cookie</li><li>该网站可能配置错误，请联系网站管理员</li><li>请检查 URL 自动跳转设置</li>';
+        } else if (/ADDRESS_UNREACHABLE|ADDRESS_INVALID/.test(code)) {
+            type = '地址无效'; desc = '无法找到通往目标服务器的路径';
+            help = '<li>检查输入的网址是否包含错误的 IP 或域名</li><li>尝试切换网络（如由 Wi-Fi 切换至移动数据）</li><li>如果你正在使用 VPN，请尝试更换节点或关闭它</li>';
+        } else if (/FILE_NOT_FOUND/.test(code)) {
+            type = '文件不存在'; desc = '无法找到请求的文件资源';
+            help = '<li>检查本地路径或 URL 拼写</li><li>该文件可能已被移动或删除</li><li>确保浏览器具有读取该位置的权限</li>';
+        } else if (/SCHEME/.test(code)) {
+            type = '协议不支持'; desc = '不支持的 URL 方案或协议';
+            help = '<li>请检查 URL 开头的协议（如 https://）是否正确</li><li>某些链接需要特定的应用程序才能打开</li>';
         }
         return { code, type, desc, help, url, ua };
     }
