@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         WebView 错误美化
 // @namespace    https://viayoo.com/h88v22
-// @version      1.7
+// @version      1.8
 // @description  基于MIUIX设计语言重绘的 WebView 错误页面，并且给出一定程度上的解决方案。
 // @author       Aloazny && Gemini
 // @run-at       document-start
@@ -169,7 +169,7 @@
         </div>`;
 
         shadow.getElementById('retryBtn').onclick = () => location.reload();
-        shadow.getElementById('backBtn').onclick = () => history.back();
+        shadow.getElementById('backBtn').onclick = () => { history.length > 1 ? history.back() : window.close(); };
         shadow.getElementById('tgl').onclick = function() {
             const det = shadow.getElementById('det');
             const isVisible = det.style.display === 'block';
